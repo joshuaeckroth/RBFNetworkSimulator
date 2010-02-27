@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+class State;
+class Plot;
+
 namespace Ui {
     class MainWindow;
 }
@@ -18,6 +21,8 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    State *state;
+    Plot *plot;
 };
 
 #endif // MAINWINDOW_H

@@ -28,7 +28,8 @@ private:
     const QVector<QPointF> *samples;
     const QVector<QPair<QPointF, QVector<QPointF> > > *centers;
     QwtPlotCurve *sampledFunction;
-    QwtPlotCurve *centersCurve;
+    QVector<QwtPlotCurve *> centerCurves;
+    QVector<QwtPlotCurve *> centerMemberCurves;
 };
 
 #endif // PLOT_H

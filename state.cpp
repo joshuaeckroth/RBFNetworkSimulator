@@ -62,10 +62,10 @@ void State::newConfig()
     if(basis != NULL)
         delete basis;
     basis = new GaussianBasisFunction;
-    numSamples = 75;
-    sampleStart = 0.0;
-    sampleEnd = 1.0;
+    numSamples = 500;
+    sampleStart = -2.0;
+    sampleEnd = 2.0;
     noiseStart = -0.1;
     noiseEnd = 0.1;
-    numCenters = 5;
+    numCenters = 10;
 }
