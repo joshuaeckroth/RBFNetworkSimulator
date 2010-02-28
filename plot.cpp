@@ -17,7 +17,7 @@ using namespace std;
 
 Plot::Plot(QWidget *parent, State *_state)
     : QwtPlot(parent), state(_state), samples(NULL), centers(NULL),
-    sampledFunction(NULL)
+    sampledFunction(NULL), estimatedCurve(NULL)
 {
     connect(state, SIGNAL(newSamples()), this, SLOT(newSamples()));
     connect(state, SIGNAL(newCenters()), this, SLOT(newCenters()));
@@ -131,6 +131,18 @@ void Plot::newBases()
         basisCurves[i]->setPen(QPen(basisColors[i]));
         basisCurves[i]->attach(this);
     }
+
+    estimated = state->getEstimated();
+    if(estimatedCurve != NULL)
+    {
+        estimatedCurve->detach();
+        delete estimatedCurve;
+    }
+    estimatedCurve = new QwtPlotCurve(QString("Estimated curve"));
+    estimatedCurve->setSamples(*estimated);
+    estimatedCurve->setRenderHint(QwtPlotCurve::RenderAntialiased, true);
+    estimatedCurve->setPen(QPen(QColor("black"), 2.0));
+    estimatedCurve->attach(this);
 
     replot();
 }

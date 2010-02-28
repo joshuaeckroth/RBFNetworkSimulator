@@ -7,6 +7,7 @@
 #include <QPair>
 
 class RadialBasisFunction;
+class RBFNetwork;
 
 class State : public QObject
 {
@@ -17,6 +18,7 @@ public:
     const QVector<QPointF>* getSamples() const;
     const QVector<QPair<QPointF, QVector<QPointF> > >* getCenters() const;
     const QVector<QVector<QPointF> >* getBases() const;
+    const QVector<QPointF>* getEstimated() const;
 
 signals:
     void newSamples();
@@ -33,6 +35,7 @@ public slots:
 private:
     double sampleStart;
     double sampleEnd;
+    double eta;
     double noiseStart;
     double noiseEnd;
     unsigned int numSamples;
@@ -41,6 +44,9 @@ private:
     QVector<QPair<QPointF, QVector<QPointF> > > centers;
     QVector<RadialBasisFunction *> basisFunctions;
     QVector<QVector<QPointF> > bases;
+    QVector<QPointF> estimated;
+    QVector<double> weights;
+    RBFNetwork *network;
 };
 
 #endif // STATE_H

@@ -10,7 +10,7 @@ class GaussianBasisFunction : public RadialBasisFunction
 {
 public:
     GaussianBasisFunction(double _mean, double _variance);
-    QVector<QPointF> sample(QVector<double> xs, double weight) const;
+    QVector<double> sample(QVector<double> xs) const;
 
 private:
     double mean;

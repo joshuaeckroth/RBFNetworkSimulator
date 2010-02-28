@@ -9,13 +9,15 @@ SOURCES += main.cpp \
     gaussianbasisfunction.cpp \
     state.cpp \
     plot.cpp \
-    kmeans.cpp
+    kmeans.cpp \
+    rbfnetwork.cpp
 HEADERS += mainwindow.h \
     radialbasisfunction.h \
     gaussianbasisfunction.h \
     state.h \
     plot.h \
-    kmeans.h
+    kmeans.h \
+    rbfnetwork.h
 FORMS += mainwindow.ui
 RESOURCES += resources.qrc
 INCLUDEPATH += qwt/src

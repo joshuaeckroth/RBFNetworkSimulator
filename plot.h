@@ -31,6 +31,8 @@ private:
     const QVector<QPair<QPointF, QVector<QPointF> > > *centers;
     const QVector<QVector<QPointF> > *bases;
     QwtPlotCurve *sampledFunction;
+    QwtPlotCurve *estimatedCurve;
+    const QVector<QPointF> *estimated;
     QVector<QwtPlotCurve *> centerCurves;
     QVector<QwtPlotCurve *> centerMemberCurves;
     QVector<QwtPlotCurve *> basisCurves;

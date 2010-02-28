@@ -3,14 +3,17 @@
 #include <cmath>
 using namespace std;
 
+#include <QDebug>
+
 #include "state.h"
 #include "radialbasisfunction.h"
 #include "gaussianbasisfunction.h"
 #include "kmeans.h"
+#include "rbfnetwork.h"
 
 State::State()
-    : sampleStart(0.0), sampleEnd(0.0),
-    noiseStart(0.0), noiseEnd(0.0), numSamples(0), numCenters(0)
+    : sampleStart(0.0), sampleEnd(0.0), eta(0.0),
+    noiseStart(0.0), noiseEnd(0.0), numSamples(0), numCenters(0), network(NULL)
 {
     qsrand(time(NULL));
 }
@@ -28,6 +31,11 @@ const QVector<QPair<QPointF, QVector<QPointF> > >* State::getCenters() const
 const QVector<QVector<QPointF> >* State::getBases() const
 {
     return &bases;
+}
+
+const QVector<QPointF>* State::getEstimated() const
+{
+    return &estimated;
 }
 
 void State::sampleFunction()
@@ -94,18 +102,38 @@ void State::findCenters()
 
 void State::trainNetwork()
 {
-    double weight = 1.0;
+    if(network != NULL)
+        delete network;
+    network = new RBFNetwork(basisFunctions, eta);
+    network->trainNetwork(samples);
+    weights = network->getWeights();
+
     QVector<double> xs(numSamples);
     for(unsigned int i = 0; i < numSamples; i++)
     {
-        xs[i] = (sampleEnd - sampleStart) * (double(qrand())/double(RAND_MAX)) + sampleStart;
+        xs[i] = samples[i].x();
     }
+    qSort(xs);
 
     bases.clear();
     bases.resize(basisFunctions.size());
+    QVector<double> output(numSamples);
     for(int i = 0; i < basisFunctions.size(); i++)
     {
-        bases[i] = basisFunctions[i]->sample(xs, weight);
+        bases[i].clear();
+        bases[i].resize(numSamples);
+        output = basisFunctions[i]->sample(xs);
+        for(unsigned int j = 0; j < numSamples; j++)
+        {
+            bases[i][j] = QPointF(xs[j], weights[i] * output[j]);
+        }
+    }
+
+    estimated.clear();
+    estimated.resize(numSamples);
+    for(unsigned int i = 0; i < numSamples; i++)
+    {
+        estimated[i] = QPointF(xs[i], network->processInput(xs[i]));
     }
 
     emit newBases();
@@ -124,9 +152,10 @@ void State::reset()
 void State::newConfig()
 {
     numSamples = 500;
-    sampleStart = -2.0;
-    sampleEnd = 2.0;
+    sampleStart = 0.0;
+    sampleEnd = 3.0;
     noiseStart = -0.1;
     noiseEnd = 0.1;
-    numCenters = 10;
+    numCenters = 8;
+    eta = 0.01;
 }
