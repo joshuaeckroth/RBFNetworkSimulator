@@ -66,7 +66,7 @@ void State::findCenters()
         {
             variance += pow(centers[c].second[i].x() - centers[c].first.x(), 2.0);
         }
-        variances[c] = variance;
+        variances[c] = variance/double(centers[c].second.size());
     }
 
     // find average variance
