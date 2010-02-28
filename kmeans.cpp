@@ -17,66 +17,46 @@ QVector<QPair<QPointF, QVector<QPointF> > >
 {
     QVector<QPair<QPointF, QVector<QPointF> > > centers(numCenters);
 
-    QVector<int> indices(numCenters, numCenters);
-
     // find random indices to initialize centers
     unsigned int index;
+    QVector<unsigned int> alreadyAdded(numCenters);
     for(unsigned int i = 0; i < numCenters; i++)
     {
         while(true)
         {
             index = (unsigned int)(double(qrand()) / double(RAND_MAX + 1) * double(points->size()));;
-            if(indices.indexOf(index) == -1)
+            if(alreadyAdded.indexOf(index) == -1)
             {
-                indices[i] = index;
+                centers[i].first = (*points)[index];
+                alreadyAdded.push_back(index);
                 break;
             }
         }
     }
 
-    // create initial centers structure using random centers chosen above
-    QVector<QPointF> closestPoints;
+    QVector<QVector<QPointF> > closestPoints(numCenters);
     unsigned int closest;
     double closestDist, thisDist;
-
-    for(unsigned int i = 0; i < numCenters; i++)
-    {
-        // find the points closest to this center
-        closestPoints.clear();
-        for(int p = 0; p < points->size(); p++)
-        {
-            // assume the point is closest to the first center
-            closest = 0;
-            closestDist = dist((*points)[p], (*points)[indices[0]]);
-
-            // determine if the point is closer to any other center
-            for(unsigned int c = 0; c < numCenters; c++)
-            {
-                thisDist = dist((*points)[p], (*points)[indices[c]]);
-
-                // if the point is closer to a different center, remember it
-                if(dist((*points)[p], (*points)[indices[c]]) < closestDist)
-                {
-                    closest = c;
-                    closestDist = thisDist;
-                }
-            }
-            // if the point was closest to the current center, save it
-            if(closest == i) closestPoints.push_back((*points)[p]);
-        }
-        // for the current center, save the center point and the closest points
-        centers[i] = QPair<QPointF, QVector<QPointF> >((*points)[indices[i]], closestPoints);
-    }
-
-    // calculate new center for each cluster
     bool centersChanged = true;
     QPointF newCenter;
+
+    // calculate new center for each cluster
+
     while(centersChanged)
     {
         centersChanged = false;
 
         for(unsigned int i = 0; i < numCenters; i++)
         {
+            // upon first iteration of while() loop, centers pairs
+            // have no second component (points assigned to that center)
+            if(centers[i].second.isEmpty())
+            {
+                // mark "centers changed" so that further processing occurs
+                centersChanged = true;
+                break;
+            }
+
             newCenter.setX(0.0);
             newCenter.setY(0.0);
             for(int p = 0; p < centers[i].second.size(); p++)
@@ -91,33 +71,37 @@ QVector<QPair<QPointF, QVector<QPointF> > >
 
         if(centersChanged)
         {
-            for(unsigned int i = 0; i < numCenters; i++)
+            for(unsigned int c = 0; c < numCenters; c++)
             {
-                // find points closest to this center
-                closestPoints.clear();
-                for(int p = 0; p < points->size(); p++)
+                closestPoints[c].clear();
+            }
+
+            // find center each point is closest to
+            for(int p = 0; p < points->size(); p++)
+            {
+                // assume the point is closest to the first center
+                closest = 0;
+                closestDist = dist((*points)[p], centers[0].first);
+
+                // determine if the point is closer to any other center
+                for(unsigned int c = 0; c < numCenters; c++)
                 {
-                    // assume the point is closest to the first center
-                    closest = 0;
-                    closestDist = dist((*points)[p], centers[0].first);
+                    thisDist = dist((*points)[p], centers[c].first);
 
-                    // determine if the point is closer to any other center
-                    for(unsigned int c = 0; c < numCenters; c++)
+                    // if the point is closer to a different center, remember it
+                    if(thisDist < closestDist)
                     {
-                        thisDist = dist((*points)[p], centers[c].first);
-
-                        // if the point is closer to a different center, remember it
-                        if(thisDist < closestDist)
-                        {
-                            closest = c;
-                            closestDist = thisDist;
-                        }
+                        closest = c;
+                        closestDist = thisDist;
                     }
-                    // if the point was closest to the current center, save it
-                    if(closest == i) closestPoints.push_back((*points)[p]);
                 }
-                // for the current center, save the center point and the closest points
-                centers[i].second = closestPoints;
+                // save point to closest center's collection
+                closestPoints[closest].push_back((*points)[p]);
+            }
+            // for each center, save its closest points
+            for(unsigned int c = 0; c < numCenters; c++)
+            {
+                centers[c].second = closestPoints[c];
             }
         }
     }
