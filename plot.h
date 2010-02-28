@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QPointF>
 #include <QPair>
+#include <QColor>
 
 class QWidget;
 
@@ -22,14 +23,18 @@ public:
 private slots:
     void newSamples();
     void newCenters();
+    void newBases();
 
 private:
     State *state;
     const QVector<QPointF> *samples;
     const QVector<QPair<QPointF, QVector<QPointF> > > *centers;
+    const QVector<QVector<QPointF> > *bases;
     QwtPlotCurve *sampledFunction;
     QVector<QwtPlotCurve *> centerCurves;
     QVector<QwtPlotCurve *> centerMemberCurves;
+    QVector<QwtPlotCurve *> basisCurves;
+    QVector<QColor> basisColors;
 };
 
 #endif // PLOT_H

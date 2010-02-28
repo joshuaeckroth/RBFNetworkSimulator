@@ -16,10 +16,12 @@ public:
     State();
     const QVector<QPointF>* getSamples() const;
     const QVector<QPair<QPointF, QVector<QPointF> > >* getCenters() const;
+    const QVector<QVector<QPointF> >* getBases() const;
 
 signals:
     void newSamples();
     void newCenters();
+    void newBases();
 
 public slots:
     void sampleFunction();
@@ -29,7 +31,6 @@ public slots:
     void newConfig();
 
 private:
-    RadialBasisFunction *basis;
     double sampleStart;
     double sampleEnd;
     double noiseStart;
@@ -38,6 +39,8 @@ private:
     unsigned int numCenters;
     QVector<QPointF> samples;
     QVector<QPair<QPointF, QVector<QPointF> > > centers;
+    QVector<RadialBasisFunction *> basisFunctions;
+    QVector<QVector<QPointF> > bases;
 };
 
 #endif // STATE_H

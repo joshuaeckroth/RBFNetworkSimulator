@@ -1,16 +1,20 @@
 #ifndef GAUSSIANBASISFUNCTION_H
 #define GAUSSIANBASISFUNCTION_H
 
-#include <vector>
+#include <QVector>
+#include <QPointF>
 
 #include "radialbasisfunction.h"
 
 class GaussianBasisFunction : public RadialBasisFunction
 {
 public:
-    GaussianBasisFunction();
-    std::vector<double> sample(std::vector<double> xs) const;
-    unsigned int getDim() const;
+    GaussianBasisFunction(double _mean, double _variance);
+    QVector<QPointF> sample(QVector<double> xs, double weight) const;
+
+private:
+    double mean;
+    double variance;
 };
 
 #endif // GAUSSIANBASISFUNCTION_H

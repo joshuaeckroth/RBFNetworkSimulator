@@ -21,11 +21,14 @@ Plot::Plot(QWidget *parent, State *_state)
 {
     connect(state, SIGNAL(newSamples()), this, SLOT(newSamples()));
     connect(state, SIGNAL(newCenters()), this, SLOT(newCenters()));
+    connect(state, SIGNAL(newBases()), this, SLOT(newBases()));
 
     setCanvasBackground(QColor(255,255,255));
 
     centerCurves.clear();
     centerMemberCurves.clear();
+    basisCurves.clear();
+    basisColors.clear();
 }
 
 void Plot::newSamples()
@@ -68,26 +71,22 @@ void Plot::newCenters()
 
     centerCurves.clear();
     centers = state->getCenters();
+
+    basisColors.clear();
+    basisColors.resize(centers->size());
     centerCurves.resize(centers->size());
     centerMemberCurves.resize(centers->size());
     QVector<QPointF> center(1);
-    double dist;
-    double tmpDist;
     int r, g, b;
     for(int i = 0; i < centers->size(); i++)
     {
         center[0] = (*centers)[i].first;
-        dist = 0;
-        for(int j = 0; j < (*centers)[i].second.size(); j++)
-        {
-            tmpDist = fabs(center[0].x() - (*centers)[i].second[j].x());
-            if(tmpDist > dist)
-                dist = tmpDist;
-        }
 
         r = qrand() % 256;
         g = qrand() % 256;
         b = qrand() % 256;
+
+        basisColors[i] = QColor(r, g, b);
 
         centerCurves[i] = new QwtPlotCurve(QString("Centers"));
         centerCurves[i]->setSamples(center);
@@ -95,7 +94,7 @@ void Plot::newCenters()
         centerCurves[i]->setStyle(QwtPlotCurve::NoCurve);
         centerCurves[i]->setSymbol(
                 QwtSymbol(QwtSymbol::Ellipse, QBrush(),
-                          QPen(QColor(r,g,b), 2.0), QSizeF(15.0, 15.0)));
+                          QPen(basisColors[i], 2.0), QSizeF(15.0, 15.0)));
         centerCurves[i]->attach(this);
 
         centerMemberCurves[i] = new QwtPlotCurve(QString("Points in XYZ"));
@@ -104,8 +103,33 @@ void Plot::newCenters()
         centerMemberCurves[i]->setStyle(QwtPlotCurve::NoCurve);
         centerMemberCurves[i]->setSymbol(
                 QwtSymbol(QwtSymbol::Ellipse, QBrush(),
-                          QPen(QColor(r,g,b)), QSizeF(8.0, 8.0)));
+                          QPen(basisColors[i]), QSizeF(8.0, 8.0)));
         centerMemberCurves[i]->attach(this);
+    }
+
+    replot();
+}
+
+void Plot::newBases()
+{
+    for(int i = 0; i < basisCurves.size(); i++)
+    {
+        if(basisCurves[i] != NULL)
+        {
+            basisCurves[i]->detach();
+            delete basisCurves[i];
+        }
+    }
+
+    bases = state->getBases();
+    basisCurves.resize(bases->size());
+    for(int i = 0; i < bases->size(); i++)
+    {
+        basisCurves[i] = new QwtPlotCurve(QString("Basis curve"));
+        basisCurves[i]->setSamples((*bases)[i]);
+        basisCurves[i]->setRenderHint(QwtPlotCurve::RenderAntialiased, true);
+        basisCurves[i]->setPen(QPen(basisColors[i]));
+        basisCurves[i]->attach(this);
     }
 
     replot();

@@ -1,21 +1,28 @@
-#include <vector>
 #include <cassert>
+#include <cmath>
 using namespace std;
 
+#include <QtAlgorithms>
+
 #include "gaussianbasisfunction.h"
+#include "kmeans.h"
 
-GaussianBasisFunction::GaussianBasisFunction()
+GaussianBasisFunction::GaussianBasisFunction(double _mean, double _variance)
+    : mean(_mean), variance(_variance)
 {
 }
 
-vector<double> GaussianBasisFunction::sample(vector<double> xs) const
+QVector<QPointF> GaussianBasisFunction::sample(QVector<double> xs, double weight) const
 {
-    assert(xs.size() == getDim());
+    qSort(xs);
 
-    return vector<double>();
+    QVector<QPointF> samples(xs.size());
+    for(int i = 0; i < xs.size(); i++)
+    {
+        samples[i] = QPointF(xs[i],
+            weight * (exp(-1.0/(2*variance)*pow(mean - xs[i], 2.0))));
+    }
+
+    return samples;
 }
 
-unsigned int GaussianBasisFunction::getDim() const
-{
-    return 1;
-}

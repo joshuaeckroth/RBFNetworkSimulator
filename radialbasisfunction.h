@@ -1,14 +1,14 @@
 #ifndef RADIALBASISFUNCTION_H
 #define RADIALBASISFUNCTION_H
 
-#include <vector>
+#include <QVector>
+#include <QPointF>
 
 class RadialBasisFunction
 {
 public:
     RadialBasisFunction();
-    virtual std::vector<double> sample(std::vector<double> xs) const = 0;
-    virtual unsigned int getDim() const = 0;
+    virtual QVector<QPointF> sample(QVector<double> xs, double weight) const = 0;
 };
 
 #endif // RADIALBASISFUNCTION_H
